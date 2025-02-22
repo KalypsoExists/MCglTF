@@ -49,10 +49,10 @@ public final class GltfModelReader
     {
         // Default constructor
     }
-    
+
     /**
      * Read the {@link GltfModel} from the given URI
-     * 
+     *
      * @param uri The URI
      * @return The {@link GltfModel}
      * @throws IOException If an IO error occurs
@@ -79,13 +79,13 @@ public final class GltfModelReader
     }
 
     /**
-     * Read the {@link GltfModel} from the given URI. In contrast to the 
-     * {@link #read(URI)} method, this method will not resolve any 
+     * Read the {@link GltfModel} from the given URI. In contrast to the
+     * {@link #read(URI)} method, this method will not resolve any
      * references that are contained in the {@link GltfModel}. <br>
      * <br>
      * This is mainly intended for binary- or embedded glTF assets that do not
      * have external references.
-     * 
+     *
      * @param uri The URI
      * @return The {@link GltfModel}
      * @throws IOException If an IO error occurs
@@ -98,31 +98,31 @@ public final class GltfModelReader
             return gltfModel;
         }
     }
-    
+
     /**
      * Read the {@link GltfModel} from the given input stream. In contrast
-     * to the {@link #read(URI)} method, this method will not resolve any 
+     * to the {@link #read(URI)} method, this method will not resolve any
      * references that are contained in the {@link GltfAsset}. <br>
      * <br>
      * This is mainly intended for binary- or embedded glTF assets that do not
      * have external references.
-     * 
+     *
      * @param inputStream The input stream to read from
      * @return The {@link GltfModel}
      * @throws IOException If an IO error occurs
      */
-    public GltfModel readWithoutReferences(InputStream inputStream) 
-        throws IOException
+    public GltfModel readWithoutReferences(InputStream inputStream)
+            throws IOException
     {
         GltfAssetReader gltfAssetReader = new GltfAssetReader();
-        GltfAsset gltfAsset = 
-            gltfAssetReader.readWithoutReferences(inputStream);
+        GltfAsset gltfAsset =
+                gltfAssetReader.readWithoutReferences(inputStream);
         return createModel(gltfAsset);
     }
-    
+
     /**
      * Creates a {@link GltfModel} instance from the given {@link GltfAsset}
-     * 
+     *
      * @param gltfAsset The {@link GltfAsset}
      * @return The {@link GltfModel}
      * @throws IOException If the given asset has an unknown version
@@ -140,7 +140,7 @@ public final class GltfModelReader
             return GltfModelCreatorV2.create(gltfAssetV2);
         }
         throw new IOException(
-            "The glTF asset has an unknown version: " + gltfAsset);
+                "The glTF asset has an unknown version: " + gltfAsset);
     }
-    
+
 }

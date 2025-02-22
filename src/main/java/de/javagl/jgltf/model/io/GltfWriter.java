@@ -41,7 +41,7 @@ public final class GltfWriter
      * Whether the JSON output should be indented
      */
     private boolean indenting;
-    
+
     /**
      * Creates a new glTF writer. By default, the output written by this class
      * will be indented.
@@ -50,48 +50,47 @@ public final class GltfWriter
     {
         this.indenting = true;
     }
-    
+
     /**
      * Set whether the JSON output should be indented
-     * 
+     *
      * @param indenting whether the JSON output should be indented
      */
     public void setIndenting(boolean indenting)
     {
         this.indenting = indenting;
     }
-    
+
     /**
      * Returns whether the JSON output will be indented
-     * 
+     *
      * @return Whether the JSON output will be indented
      */
     public boolean isIndenting()
     {
         return indenting;
     }
-    
+
     /**
      * Write the given glTF to the given output stream. The caller
      * is responsible for closing the stream.
-     * 
+     *
      * @param gltf The glTF
      * @param outputStream The output stream
      * @throws IOException If an IO error occurred
      */
-    public void write(Object gltf, OutputStream outputStream) 
-        throws IOException 
+    public void write(Object gltf, OutputStream outputStream)
+            throws IOException
     {
-    	GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = new GsonBuilder();
         if (indenting)
         {
-        	gsonBuilder.setPrettyPrinting();
+            gsonBuilder.setPrettyPrinting();
         }
         OutputStreamWriter writer = new OutputStreamWriter(outputStream);
         gsonBuilder.create().toJson(gsonBuilder, writer);
         writer.close();
     }
-    
-}
 
+}
 

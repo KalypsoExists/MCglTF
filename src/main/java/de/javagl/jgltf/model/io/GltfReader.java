@@ -47,34 +47,34 @@ final class GltfReader
      * The logger used in this class
      */
     private static final Logger logger =
-        Logger.getLogger(GltfReader.class.getName());
+            Logger.getLogger(GltfReader.class.getName());
 
     /**
      * The root node that was read during the last call to {@link #read}
      */
     private JsonElement rootNode;
-    
+
     /**
-     * Read the JSON data from the given input stream. The caller is 
+     * Read the JSON data from the given input stream. The caller is
      * responsible for closing the given stream. After this method
      * has been called, the version of the glTF may be obtained with
      * {@link #getVersion()}, and the actual asset may be obtained
      * with {@link #getAsGltfV1()} or {@link #getAsGltfV2()}.
-     * 
+     *
      * @param inputStream The input stream
      * @throws IOException If an IO error occurred
      */
     void read(InputStream inputStream) throws IOException
     {
-    	InputStreamReader reader = new InputStreamReader(inputStream);
-    	rootNode = JsonParser.parseReader(reader);
-    	reader.close();
+        InputStreamReader reader = new InputStreamReader(inputStream);
+        rootNode = JsonParser.parseReader(reader);
+        reader.close();
     }
-    
+
     /**
      * Returns the version of the glTF, or <code>null</code>
      * if no glTF was read yet
-     * 
+     *
      * @return The version string
      */
     String getVersion()
@@ -85,10 +85,10 @@ final class GltfReader
         }
         return getVersion(rootNode);
     }
-    
+
     /**
      * Returns the major version of the glTF, or 0 of no glTF was read yet.
-     * 
+     *
      * @return The major version number
      */
     int getMajorVersion()
@@ -100,11 +100,11 @@ final class GltfReader
         int version[] = VersionUtils.computeMajorMinorPatch(getVersion());
         return version[0];
     }
-    
+
     /**
-     * Obtain the glTF as a {@link de.javagl.jgltf.impl.v1.GlTF}, 
+     * Obtain the glTF as a {@link de.javagl.jgltf.impl.v1.GlTF},
      * or <code>null</code> if no glTF was read yet.
-     * 
+     *
      * @return The glTF.
      * @throws IllegalArgumentException If the glTF that was read is not
      * a valid glTF 1.0
@@ -115,14 +115,14 @@ final class GltfReader
         {
             return null;
         }
-        return new Gson().fromJson(rootNode, 
-            de.javagl.jgltf.impl.v1.GlTF.class);
+        return new Gson().fromJson(rootNode,
+                de.javagl.jgltf.impl.v1.GlTF.class);
     }
-    
+
     /**
-     * Obtain the glTF as a {@link de.javagl.jgltf.impl.v2.GlTF}, 
+     * Obtain the glTF as a {@link de.javagl.jgltf.impl.v2.GlTF},
      * or <code>null</code> if no glTF was read yet.
-     * 
+     *
      * @return The glTF.
      * @throws IllegalArgumentException If the glTF that was read is not
      * a valid glTF 2.0
@@ -133,21 +133,21 @@ final class GltfReader
         {
             return null;
         }
-        return new Gson().fromJson(rootNode, 
-            de.javagl.jgltf.impl.v2.GlTF.class);
+        return new Gson().fromJson(rootNode,
+                de.javagl.jgltf.impl.v2.GlTF.class);
     }
-    
+
     /**
      * Tries to obtain the <code>rootNode.asset.version</code> string. If
      * either node is <code>null</code>, then <code>"1.0"</code> will be
      * returned.
-     * 
+     *
      * @param rootNode The root node
-     * @return The version 
+     * @return The version
      */
     private static String getVersion(JsonElement rootNode)
     {
-    	JsonElement assetNode = rootNode.getAsJsonObject().get("asset");
+        JsonElement assetNode = rootNode.getAsJsonObject().get("asset");
         if (assetNode == null)
         {
             return "1.0";
@@ -159,12 +159,12 @@ final class GltfReader
         }
         if (!versionNode.isJsonPrimitive())
         {
-            logger.warning("No valid 'version' property in 'asset'. " + 
-                "Assuming version 1.0");
+            logger.warning("No valid 'version' property in 'asset'. " +
+                    "Assuming version 1.0");
             return "1.0";
         }
         return versionNode.getAsString();
     }
-    
-    
+
+
 }

@@ -27,22 +27,11 @@
 package de.javagl.jgltf.model.v2;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.modularmods.mcgltf.MCglTF;
-
-import de.javagl.jgltf.impl.v2.GlTFChildOfRootProperty;
-import de.javagl.jgltf.impl.v2.GlTFProperty;
-import de.javagl.jgltf.impl.v2.Asset;
 import de.javagl.jgltf.impl.v2.Accessor;
 import de.javagl.jgltf.impl.v2.AccessorSparse;
 import de.javagl.jgltf.impl.v2.AccessorSparseIndices;
@@ -51,12 +40,15 @@ import de.javagl.jgltf.impl.v2.Animation;
 import de.javagl.jgltf.impl.v2.AnimationChannel;
 import de.javagl.jgltf.impl.v2.AnimationChannelTarget;
 import de.javagl.jgltf.impl.v2.AnimationSampler;
+import de.javagl.jgltf.impl.v2.Asset;
 import de.javagl.jgltf.impl.v2.Buffer;
 import de.javagl.jgltf.impl.v2.BufferView;
 import de.javagl.jgltf.impl.v2.Camera;
 import de.javagl.jgltf.impl.v2.CameraOrthographic;
 import de.javagl.jgltf.impl.v2.CameraPerspective;
 import de.javagl.jgltf.impl.v2.GlTF;
+import de.javagl.jgltf.impl.v2.GlTFChildOfRootProperty;
+import de.javagl.jgltf.impl.v2.GlTFProperty;
 import de.javagl.jgltf.impl.v2.Image;
 import de.javagl.jgltf.impl.v2.Material;
 import de.javagl.jgltf.impl.v2.MaterialNormalTextureInfo;
@@ -74,9 +66,9 @@ import de.javagl.jgltf.model.AccessorData;
 import de.javagl.jgltf.model.AccessorDatas;
 import de.javagl.jgltf.model.AccessorModel;
 import de.javagl.jgltf.model.AnimationModel;
-import de.javagl.jgltf.model.AssetModel;
 import de.javagl.jgltf.model.AnimationModel.Channel;
 import de.javagl.jgltf.model.AnimationModel.Interpolation;
+import de.javagl.jgltf.model.AssetModel;
 import de.javagl.jgltf.model.BufferModel;
 import de.javagl.jgltf.model.BufferViewModel;
 import de.javagl.jgltf.model.CameraModel;
@@ -97,9 +89,9 @@ import de.javagl.jgltf.model.impl.AbstractModelElement;
 import de.javagl.jgltf.model.impl.AbstractNamedModelElement;
 import de.javagl.jgltf.model.impl.DefaultAccessorModel;
 import de.javagl.jgltf.model.impl.DefaultAnimationModel;
-import de.javagl.jgltf.model.impl.DefaultAssetModel;
 import de.javagl.jgltf.model.impl.DefaultAnimationModel.DefaultChannel;
 import de.javagl.jgltf.model.impl.DefaultAnimationModel.DefaultSampler;
+import de.javagl.jgltf.model.impl.DefaultAssetModel;
 import de.javagl.jgltf.model.impl.DefaultBufferModel;
 import de.javagl.jgltf.model.impl.DefaultBufferViewModel;
 import de.javagl.jgltf.model.impl.DefaultCameraModel;
@@ -117,10 +109,10 @@ import de.javagl.jgltf.model.impl.DefaultTextureModel;
 import de.javagl.jgltf.model.io.Buffers;
 import de.javagl.jgltf.model.io.GltfAsset;
 import de.javagl.jgltf.model.io.IO;
+import de.javagl.jgltf.model.io.MimeTypes;
 import de.javagl.jgltf.model.io.v2.GltfAssetV2;
 import de.javagl.jgltf.model.v2.MaterialModelV2.AlphaMode;
 import de.javagl.jgltf.model.v2.gl.Materials;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * A class that is responsible for filling a {@link DefaultGltfModel} with
@@ -533,7 +525,8 @@ public class GltfModelCreatorV2
             // When there is no BufferView referenced from the accessor,
             // then a NEW BufferViewModel (and Buffer) have to be created
             int count = accessorModel.getCount();
-            int elementSizeInBytes = accessorModel.getElementSizeInBytes();
+            int elementSizeInBytes = 
+                accessorModel.getPaddedElementSizeInBytes();
             int byteLength = elementSizeInBytes * count;
             ByteBuffer bufferData = Buffers.create(byteLength);
             String uriString = "buffer_for_accessor" + accessorIndex + ".bin";
@@ -561,7 +554,7 @@ public class GltfModelCreatorV2
         // then this BufferView has to be replaced with a new one,
         // to which the data substitution will be applied 
         int count = accessorModel.getCount();
-        int elementSizeInBytes = accessorModel.getElementSizeInBytes();
+        int elementSizeInBytes = accessorModel.getPaddedElementSizeInBytes();
         int byteLength = elementSizeInBytes * count;
         ByteBuffer bufferData = Buffers.create(byteLength);
         String uriString = "buffer_for_accessor" + accessorIndex + ".bin";
@@ -832,16 +825,6 @@ public class GltfModelCreatorV2
             Buffer buffer = buffers.get(i);
             DefaultBufferModel bufferModel = gltfModel.getBufferModel(i);
             transferGltfChildOfRootPropertyElements(buffer, bufferModel);
-            
-            Object extras = buffer.getExtras();
-        	if(extras != null) {
-        		JsonElement extra = new Gson().toJsonTree(extras).getAsJsonObject().get(MCglTF.RESOURCE_LOCATION);
-        		if(extra != null) {
-        			bufferModel.setBufferData(MCglTF.getInstance().getBufferResource(new ResourceLocation(extra.getAsString())));
-        			continue;
-        		}
-        	}
-            
             if (i == 0 && binaryData != null)
             {
                 bufferModel.setBufferData(binaryData);
@@ -862,6 +845,9 @@ public class GltfModelCreatorV2
                         logger.warning("Buffer " + i + " does not have "
                             + "a uri. Binary chunks that are not the main GLB "
                             + "buffer are not supported.");
+                        ByteBuffer fallbackBuffer =
+                            ByteBuffer.allocate(buffer.getByteLength());
+                        bufferModel.setBufferData(fallbackBuffer);
                     }
                     else
                     {
@@ -916,6 +902,7 @@ public class GltfModelCreatorV2
                     createMeshPrimitiveModel(meshPrimitive);
                 meshModel.addMeshPrimitiveModel(meshPrimitiveModel);
             }
+            meshModel.setWeights(toArray(mesh.getWeights()));
         }
     }
     
@@ -967,8 +954,7 @@ public class GltfModelCreatorV2
                     gltfModel.getAccessorModel(accessorIndex);
                 morphTargetModel.put(attribute, accessorModel);
             }
-            meshPrimitiveModel.addTarget(
-                Collections.unmodifiableMap(morphTargetModel));
+            meshPrimitiveModel.addTarget(morphTargetModel);
         }
         
         Integer materialIndex = meshPrimitive.getMaterial();
@@ -1032,16 +1018,7 @@ public class GltfModelCreatorV2
             nodeModel.setRotation(Optionals.clone(rotation));
             nodeModel.setScale(Optionals.clone(scale));
             
-            List<Float> weights = node.getWeights();
-            if (weights != null)
-            {
-                float weightsArray[] = new float[weights.size()];
-                for (int j = 0; j < weights.size(); j++)
-                {
-                    weightsArray[j] = weights.get(j);
-                }
-                nodeModel.setWeights(weightsArray);
-            }
+            nodeModel.setWeights(toArray(node.getWeights()));
         }
     }
     
@@ -1130,15 +1107,6 @@ public class GltfModelCreatorV2
             DefaultImageModel imageModel = gltfModel.getImageModel(i);
             transferGltfChildOfRootPropertyElements(image, imageModel);
             
-            Object extras = image.getExtras();
-        	if(extras != null) {
-        		JsonElement extra = new Gson().toJsonTree(extras).getAsJsonObject().get(MCglTF.RESOURCE_LOCATION);
-        		if(extra != null) {
-        			imageModel.setImageData(MCglTF.getInstance().getImageResource(new ResourceLocation(extra.getAsString())));
-        			continue;
-        		}
-        	}
-            
             Integer bufferViewIndex = image.getBufferView();
             if (bufferViewIndex != null)
             {
@@ -1160,6 +1128,16 @@ public class GltfModelCreatorV2
                     ByteBuffer imageData = gltfAsset.getReferenceData(uri);
                     imageModel.setImageData(imageData);
                 }
+            }
+            
+            // If the MIME type was not set, then detect it from the image data
+            String mimeType = imageModel.getMimeType();
+            if (mimeType == null)
+            {
+                ByteBuffer imageData = imageModel.getImageData();
+                mimeType =
+                    MimeTypes.guessImageMimeTypeStringUnchecked(imageData);
+                imageModel.setMimeType(mimeType);
             }
         }
     }
@@ -1351,5 +1329,25 @@ public class GltfModelCreatorV2
         modelElement.setName(property.getName());
         transferGltfPropertyElements(property, modelElement);
     }
-    
+
+    /**
+     * Returns an array containing the float representations of the given
+     * numbers, or <code>null</code> if the given list is <code>null</code>.
+     * 
+     * @param numbers The numbers
+     * @return The array
+     */
+    private static float[] toArray(List<? extends Number> numbers)
+    {
+        if (numbers == null)
+        {
+            return null;
+        }
+        float array[] = new float[numbers.size()];
+        for (int j = 0; j < numbers.size(); j++)
+        {
+            array[j] = numbers.get(j).floatValue();
+        }
+        return array;
+    }
 }

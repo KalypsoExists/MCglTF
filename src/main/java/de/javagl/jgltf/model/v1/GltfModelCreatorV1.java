@@ -37,10 +37,6 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.logging.Logger;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.modularmods.mcgltf.MCglTF;
-
 import de.javagl.jgltf.impl.v1.Accessor;
 import de.javagl.jgltf.impl.v1.Animation;
 import de.javagl.jgltf.impl.v1.AnimationChannel;
@@ -129,11 +125,11 @@ import de.javagl.jgltf.model.impl.DefaultTextureModel;
 import de.javagl.jgltf.model.io.Buffers;
 import de.javagl.jgltf.model.io.GltfAsset;
 import de.javagl.jgltf.model.io.IO;
+import de.javagl.jgltf.model.io.MimeTypes;
 import de.javagl.jgltf.model.io.v1.GltfAssetV1;
 import de.javagl.jgltf.model.v1.gl.DefaultModels;
 import de.javagl.jgltf.model.v1.gl.GltfDefaults;
 import de.javagl.jgltf.model.v1.gl.TechniqueStatesFunctionsModels;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * A class that is responsible for filling a {@link DefaultGltfModel} with
@@ -628,15 +624,6 @@ public class GltfModelCreatorV1
                 get("images", imageId, gltfModel::getImageModel);
             transferGltfChildOfRootPropertyElements(image, imageModel);
             
-            Object extras = image.getExtras();
-        	if(extras != null) {
-        		JsonElement extra = new Gson().toJsonTree(extras).getAsJsonObject().get(MCglTF.RESOURCE_LOCATION);
-        		if(extra != null) {
-        			imageModel.setImageData(MCglTF.getInstance().getImageResource(new ResourceLocation(extra.getAsString())));
-        			continue;
-        		}
-        	}
-            
             if (BinaryGltfV1.hasBinaryGltfExtension(image))
             {
                 String bufferViewId = 
@@ -661,6 +648,17 @@ public class GltfModelCreatorV1
                     imageModel.setImageData(imageData);
                 }
             }
+
+            // If the MIME type was not set, then detect it from the image data
+            String mimeType = imageModel.getMimeType();
+            if (mimeType == null)
+            {
+                ByteBuffer imageData = imageModel.getImageData();
+                mimeType =
+                    MimeTypes.guessImageMimeTypeStringUnchecked(imageData);
+                imageModel.setMimeType(mimeType);
+            }
+            
         }
     }
     
@@ -754,15 +752,6 @@ public class GltfModelCreatorV1
             DefaultBufferModel bufferModel = 
                 get("buffers", bufferId, gltfModel::getBufferModel);
             transferGltfChildOfRootPropertyElements(buffer, bufferModel);
-            
-            Object extras = buffer.getExtras();
-        	if(extras != null) {
-        		JsonElement extra = new Gson().toJsonTree(extras).getAsJsonObject().get(MCglTF.RESOURCE_LOCATION);
-        		if(extra != null) {
-        			bufferModel.setBufferData(MCglTF.getInstance().getBufferResource(new ResourceLocation(extra.getAsString())));
-        			continue;
-        		}
-        	}
             
             if (BinaryGltfV1.isBinaryGltfBufferId(bufferId))
             {
@@ -1159,8 +1148,7 @@ public class GltfModelCreatorV1
                 BufferViewModel bufferViewModel =
                     get("bufferViews", bufferViewId, 
                         gltfModel::getBufferViewModel);
-                
-                shaderModel.setShaderData(bufferViewModel.getBufferViewData());
+                shaderModel.setBufferViewModel(bufferViewModel);
             }
             else
             {

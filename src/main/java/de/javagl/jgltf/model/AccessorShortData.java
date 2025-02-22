@@ -109,10 +109,10 @@ public final class AccessorShortData
         int byteIndex = getByteIndex(elementIndex, componentIndex);
         return getBufferViewByteBuffer().getShort(byteIndex);
     }
-    
+
     public float getFloat(int elementIndex, int componentIndex) {
-    	short value = get(elementIndex, componentIndex);
-    	return unsigned ? Short.toUnsignedInt(value) / (Short.MAX_VALUE - Short.MIN_VALUE) : Math.max(value / Short.MAX_VALUE, -1.0F);
+        short value = get(elementIndex, componentIndex);
+        return unsigned ? Short.toUnsignedInt(value) / (Short.MAX_VALUE - Short.MIN_VALUE) : Math.max(value / Short.MAX_VALUE, -1.0F);
     }
     
     /**

@@ -111,8 +111,13 @@ public class Buffers
             byteBuffer.limit(newLimit);
             byteBuffer.position(position);
             ByteBuffer slice = byteBuffer.slice();
-            slice.order(byteBuffer.order());
-            return slice;
+            // YEAAAA IDK ABOUT MAKING EVERY SLICE DIRECT HAHAHAHAHHAHAHA
+            // good luck ram?
+            ByteBuffer directSlice = ByteBuffer.allocateDirect(slice.remaining());
+            directSlice.put(slice);
+            directSlice.flip();
+            directSlice.order(byteBuffer.order());
+            return directSlice;
         }
         finally
         {

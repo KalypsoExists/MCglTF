@@ -46,20 +46,20 @@ class GltfUtilsV2
      * in the copy. The goal of this method is to create a copy that is,
      * as far as reasonably possible, "structurally equivalent" to the
      * given input.
-     * 
-     * @param gltf The input 
+     *
+     * @param gltf The input
      * @return The copy
      * @throws GltfException If the copy can not be created
      */
     static GlTF copy(GlTF gltf)
     {
-    	Gson gson = new Gson();
-    	return gson.fromJson(gson.toJsonTree(gltf, GlTF.class), GlTF.class);
+        Gson gson = new Gson();
+        return gson.fromJson(gson.toJsonTree(gltf, GlTF.class), GlTF.class);
     }
 
     /**
      * Creates a shallow copy of the given {@link BufferView}
-     * 
+     *
      * @param bufferView The {@link BufferView}
      * @return The copy
      */
@@ -76,11 +76,11 @@ class GltfUtilsV2
         copy.setByteStride(bufferView.getByteStride());
         return copy;
     }
-    
-    
+
+
     /**
      * Creates a shallow copy of the given {@link Image}
-     * 
+     *
      * @param image The {@link Image}
      * @return The copy
      */
@@ -95,7 +95,7 @@ class GltfUtilsV2
         copy.setMimeType(image.getMimeType());
         return copy;
     }
-    
+
     /**
      * Private constructor to prevent instantiation
      */

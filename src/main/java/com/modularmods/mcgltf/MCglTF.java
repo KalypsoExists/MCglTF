@@ -69,21 +69,13 @@ public class MCglTF {
 	private final Map<ResourceLocation, Supplier<ByteBuffer>> loadedImageResources = new HashMap<ResourceLocation, Supplier<ByteBuffer>>();
 	private final List<IGltfModelReceiver> gltfModelReceivers = new ArrayList<IGltfModelReceiver>();
 	private final List<Runnable> gltfRenderData = new ArrayList<Runnable>();
-	
-	private final boolean isOptiFineExist;
+
 	
 	public MCglTF() {
 		INSTANCE = this;
 		//Make sure the mod being absent on the other network side does not cause the client to display the server as incompatible
 		ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
-		
-		Class<?> clazz = null;
-		try {
-			clazz = Class.forName("net.optifine.shaders.Shaders");
-		} catch (ClassNotFoundException e) {
-			//Hush
-		}
-		isOptiFineExist = clazz != null;
+
 		
 		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, specPair.getRight());
 		
@@ -92,7 +84,6 @@ public class MCglTF {
 			case GL43:
 				INSTANCE.createSkinningProgramGL43();
 				break;
-			case GL40:
 			case GL33:
 				INSTANCE.createSkinningProgramGL33();
 				break;

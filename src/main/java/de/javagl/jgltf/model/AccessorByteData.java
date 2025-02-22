@@ -108,11 +108,6 @@ public final class AccessorByteData
         return getBufferViewByteBuffer().get(byteIndex);
     }
     
-    public float getFloat(int elementIndex, int componentIndex) {
-    	byte value = get(elementIndex, componentIndex);
-        return unsigned ? Byte.toUnsignedInt(value) / (Byte.MAX_VALUE - Byte.MIN_VALUE) : Math.max(value / Byte.MAX_VALUE, -1.0F);
-    }
-    
     /**
      * Returns the value of the specified component
      * 
@@ -128,6 +123,11 @@ public final class AccessorByteData
         int componentIndex = 
             globalComponentIndex % getNumComponentsPerElement();
         return get(elementIndex, componentIndex);
+    }
+
+    public float getFloat(int elementIndex, int componentIndex) {
+        byte value = get(elementIndex, componentIndex);
+        return unsigned ? Byte.toUnsignedInt(value) / (Byte.MAX_VALUE - Byte.MIN_VALUE) : Math.max(value / Byte.MAX_VALUE, -1.0F);
     }
 
     /**

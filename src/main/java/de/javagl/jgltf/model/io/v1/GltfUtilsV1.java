@@ -53,20 +53,20 @@ class GltfUtilsV1
      * in the copy. The goal of this method is to create a copy that is,
      * as far as reasonably possible, "structurally equivalent" to the
      * given input.
-     * 
-     * @param gltf The input 
+     *
+     * @param gltf The input
      * @return The copy
      * @throws GltfException If the copy can not be created
      */
     static GlTF copy(GlTF gltf)
     {
-    	Gson gson = new Gson();
-    	return gson.fromJson(gson.toJsonTree(gltf, GlTF.class), GlTF.class);
+        Gson gson = new Gson();
+        return gson.fromJson(gson.toJsonTree(gltf, GlTF.class), GlTF.class);
     }
 
     /**
      * Creates a shallow copy of the given {@link BufferView}
-     * 
+     *
      * @param bufferView The {@link BufferView}
      * @return The copy
      */
@@ -82,11 +82,11 @@ class GltfUtilsV1
         copy.setTarget(bufferView.getTarget());
         return copy;
     }
-    
-    
+
+
     /**
      * Creates a shallow copy of the given {@link Image}
-     * 
+     *
      * @param image The {@link Image}
      * @return The copy
      */
@@ -99,10 +99,10 @@ class GltfUtilsV1
         copy.setUri(image.getUri());
         return copy;
     }
-    
+
     /**
      * Creates a shallow copy of the given {@link Shader}
-     * 
+     *
      * @param shader The {@link Shader}
      * @return The copy
      */
@@ -116,19 +116,19 @@ class GltfUtilsV1
         copy.setUri(shader.getUri());
         return copy;
     }
-    
+
     /**
      * Combine the keys of the given map with the elements of the given
      * collection, in iteration order.
-     * 
+     *
      * @param map The map
      * @param collection The collection
      * @return The resulting map
      * @throws IllegalArgumentException If the inputs have different sizes
      */
     static <K, V> Map<K, V> createMap(
-        Map<? extends K, ?> map, 
-        Collection<? extends V> collection)
+            Map<? extends K, ?> map,
+            Collection<? extends V> collection)
     {
         if (map == null)
         {
@@ -137,8 +137,8 @@ class GltfUtilsV1
         if (map.size() != collection.size())
         {
             throw new IllegalArgumentException(
-                "The inputs must have the same size, but the sizes are "
-                + map.size() + " and " + collection.size());
+                    "The inputs must have the same size, but the sizes are "
+                            + map.size() + " and " + collection.size());
         }
         Iterator<? extends K> iterator0 = map.keySet().iterator();
         Iterator<? extends V> iterator1 = collection.iterator();
@@ -151,7 +151,7 @@ class GltfUtilsV1
         }
         return result;
     }
-    
+
     /**
      * Private constructor to prevent instantiation
      */
